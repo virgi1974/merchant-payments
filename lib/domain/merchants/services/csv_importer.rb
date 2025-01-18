@@ -1,8 +1,4 @@
 # app/domain/merchants/services/import_merchants.rb
-require_relative "../services/csv_validator"
-require_relative "../data/csv_record_validator"
-require_relative "../services/merchant_creators/csv_creator"
-
 module Domain
   module Merchants
     module Services
