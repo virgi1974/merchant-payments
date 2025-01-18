@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "csv"
 # Data structures and type system
 gem "dry-struct", "~> 1.7.0"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
