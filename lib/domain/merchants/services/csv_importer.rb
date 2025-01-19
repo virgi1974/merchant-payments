@@ -18,12 +18,11 @@ module Domain
         end
 
         def call
-          Rails.logger.info "Starting merchants import at #{Time.current}"
-
+          logger.info "Starting merchants import at #{Time.current}"
           validation = CSV_VALIDATOR.call(csv_path)
 
           unless validation[:valid]
-            validation[:errors].each { |error| Rails.logger.error(error) }
+            validation[:errors].each { |error| logger.error(error) }
             return
           end
 
@@ -38,11 +37,11 @@ module Domain
             handle_failures
           end
 
-          Rails.logger.info "Successfully imported #{@imported_count} merchants"
+          logger.info "Successfully imported #{@imported_count} merchants"
         rescue CSV::MalformedCSVError => e
-          Rails.logger.error "CSV parsing error: #{e.message}"
+          logger.error "CSV parsing error: #{e.message}"
         rescue Errno::ENOENT => e
-          Rails.logger.error "CSV file not found: #{e.message}"
+          logger.error "CSV file not found: #{e.message}"
         end
 
         private
@@ -60,20 +59,19 @@ module Domain
           @imported_count += 1
         rescue Dry::Struct::Error => e
           failed_merchants << build_error(line, row, e)
-          Rails.logger.error "Invalid data at line #{line}: #{e.message}"
+          logger.error "Invalid data at line #{line}: #{e.message}"
         rescue StandardError => e
           failed_merchants << build_error(line, row, e)
-          Rails.logger.error "Failed to import merchant at line #{line}: #{e.message}"
+          logger.error "Failed to import merchant at line #{line}: #{e.message}"
         end
 
         def handle_failures
           return unless failed_merchants.any?
 
-          Rails.logger.error "Import failed for #{failed_merchants.count} merchants:"
+          logger.error "Import failed for #{failed_merchants.count} merchants:"
           failed_merchants.each do |failure|
-            Rails.logger.error "Line #{failure[:line]}: #{failure[:reference]} - #{failure[:error]}"
+            logger.error "Line #{failure[:line]}: #{failure[:reference]} - #{failure[:error]}"
           end
-          raise ActiveRecord::Rollback
         end
 
         def build_error(line, row, error)
@@ -83,6 +81,16 @@ module Domain
             error: error.message,
             data: row.to_h
           }
+        end
+
+        def logger
+          @logger ||= begin
+            logger = Logger.new($stdout)
+            logger.formatter = proc do |severity, datetime, progname, msg|
+              "#{datetime}: #{msg}\n"
+            end
+            logger
+          end
         end
       end
     end

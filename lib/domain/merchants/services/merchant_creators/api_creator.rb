@@ -4,22 +4,40 @@ module Domain
     module Services
       module MerchantCreators
         class ApiCreator < BaseCreator
+          def self.call(merchant_data)
+            new(merchant_data).call
+          end
+
+          def initialize(merchant_data)
+            @merchant_data = merchant_data
+          end
+
           def call
-            # API-specific validations/transformations
             normalized_data = normalize_merchant_data
-            validate_api_specific_fields!
             create_merchant(normalized_data)
           end
 
           private
 
-          def validate_api_specific_fields!
-            # API-specific validation logic
+          attr_reader :merchant_data
+
+          def normalize_merchant_data
+            {
+              id: merchant_data.id,
+              reference: merchant_data.reference,
+              email: merchant_data.email,
+              disbursement_frequency: ValueObjects::DisbursementFrequency.normalize(merchant_data.disbursement_frequency),
+              minimum_monthly_fee_cents: (merchant_data.minimum_monthly_fee * 100).to_i,
+              live_on: merchant_data.live_on
+            }
           end
 
           def create_merchant(data)
-            record = Infrastructure::Persistence::ActiveRecord::Merchant.create!(data)
-            Domain::Merchants::Merchant.new(record.attributes)
+            merchant_repository.create(data)
+          end
+
+          def merchant_repository
+            @merchant_repository ||= Domain::Merchants::Repositories::MerchantRepository.new
           end
         end
       end

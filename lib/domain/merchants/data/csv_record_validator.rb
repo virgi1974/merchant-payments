@@ -25,9 +25,9 @@ module Domain
             id: row["id"],
             reference: row["reference"],
             email: row["email"],
-            live_on: parse_date(row["live_on"]),
+            live_on: row["live_on"],
             disbursement_frequency: row["disbursement_frequency"],
-            minimum_monthly_fee: parse_decimal(row["minimum_monthly_fee"])
+            minimum_monthly_fee: row["minimum_monthly_fee"]
           )
         rescue ArgumentError, Dry::Struct::Error => e
           raise Dry::Struct::Error, "#{e.message} - Row: #{row.to_h}"
@@ -40,18 +40,6 @@ module Domain
         def initialize_separator(sep)
           @separator = sep
           self
-        end
-
-        def parse_date(date_string)
-          ::Date.parse(date_string)
-        rescue Date::Error => e
-          raise Dry::Struct::Error, "Invalid date format for live_on: #{date_string}"
-        end
-
-        def parse_decimal(decimal_string)
-          BigDecimal(decimal_string.to_s)
-        rescue ArgumentError => e
-          raise Dry::Struct::Error, "Invalid decimal format for minimum_monthly_fee: #{decimal_string}"
         end
       end
     end
