@@ -1,5 +1,3 @@
-require_relative "../../shared/types"
-
 module Domain
   module Merchants
     module Data
