@@ -13,6 +13,9 @@ module Domain
                                     .constrained(gteq: 0)
       Email = Types::String.constrained(format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i)
       Date = Types::Date.constructor(proc { |value| ::Date.parse(value.to_s) })
+
+      HEX_ID_REGEX = /\A[0-9a-f]{12}\z/i
+      HexId = Types::String.constrained(format: HEX_ID_REGEX)
     end
   end
 end

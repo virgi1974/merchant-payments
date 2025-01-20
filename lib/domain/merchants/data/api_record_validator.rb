@@ -21,7 +21,7 @@ module Domain
 
         def process_params(params)
           self.class.new(
-            id: params[:id],
+            id: nil,
             reference: params[:reference],
             email: params[:email],
             live_on: params[:live_on],
