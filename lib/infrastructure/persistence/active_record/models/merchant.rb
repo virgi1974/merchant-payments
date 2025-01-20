@@ -17,7 +17,10 @@ module Infrastructure
           validates :minimum_monthly_fee_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
           # TODO: Add these relationships later
-          # has_many :orders, foreign_key: :merchant_reference, primary_key: :reference
+          has_many :orders,
+                   class_name: "Infrastructure::Persistence::ActiveRecord::Models::Order",
+                   foreign_key: :merchant_reference,
+                   primary_key: :reference
           # has_many :disbursements, foreign_key: :merchant_reference, primary_key: :reference
           # has_many :monthly_fees, foreign_key: :merchant_reference, primary_key: :reference
         end
