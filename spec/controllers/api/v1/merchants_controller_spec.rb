@@ -15,7 +15,7 @@ RSpec.describe Api::V1::MerchantsController, type: :controller do
     context "with valid params" do
       it "creates a new merchant" do
         merchant = double("merchant", id: SecureRandom.uuid)
-        expect(Domain::Merchants::Services::ApiImporter).to receive(:call)
+        expect(Domain::Merchants::Services::Importers::ApiImporter).to receive(:call)
           .with(valid_params.stringify_keys)
           .and_return(merchant)
 
@@ -35,7 +35,7 @@ RSpec.describe Api::V1::MerchantsController, type: :controller do
 
     context "with validation errors" do
       before do
-        allow(Domain::Merchants::Services::ApiImporter).to receive(:call)
+        allow(Domain::Merchants::Services::Importers::ApiImporter).to receive(:call)
           .and_raise(Domain::Merchants::Errors::ValidationError.new("Invalid data"))
       end
 
@@ -48,7 +48,7 @@ RSpec.describe Api::V1::MerchantsController, type: :controller do
 
     context "with duplicate merchant" do
       before do
-        allow(Domain::Merchants::Services::ApiImporter).to receive(:call)
+        allow(Domain::Merchants::Services::Importers::ApiImporter).to receive(:call)
           .and_raise(ActiveRecord::RecordNotUnique.new("Duplicate"))
       end
 
@@ -61,7 +61,7 @@ RSpec.describe Api::V1::MerchantsController, type: :controller do
 
     context "with unexpected error" do
       before do
-        allow(Domain::Merchants::Services::ApiImporter).to receive(:call)
+        allow(Domain::Merchants::Services::Importers::ApiImporter).to receive(:call)
           .and_raise(StandardError.new("Unexpected error"))
       end
 
@@ -74,7 +74,7 @@ RSpec.describe Api::V1::MerchantsController, type: :controller do
 
     context "with invalid record" do
       before do
-        allow(Domain::Merchants::Services::ApiImporter).to receive(:call)
+        allow(Domain::Merchants::Services::Importers::ApiImporter).to receive(:call)
           .and_raise(ActiveRecord::RecordInvalid.new)
       end
 
@@ -93,7 +93,7 @@ RSpec.describe Api::V1::MerchantsController, type: :controller do
 
       it "ignores unpermitted parameters" do
         merchant = double("merchant", id: SecureRandom.uuid)
-        allow(Domain::Merchants::Services::ApiImporter).to receive(:call)
+        allow(Domain::Merchants::Services::Importers::ApiImporter).to receive(:call)
           .and_return(merchant)
 
         post :create, params: params_with_id

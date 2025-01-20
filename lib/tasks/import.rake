@@ -7,7 +7,7 @@ namespace :import do
   desc "Import merchants from CSV file"
   task merchants: :environment do
     Rails.logger.info "Starting import task"
-    Domain::Merchants::Services::CsvImporter.call(MERCHANTS_CSV_PATH)
+    Domain::Merchants::Services::Importers::CsvImporter.call(MERCHANTS_CSV_PATH)
   end
 
   desc "Import orders from CSV file"

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Domain::Merchants::Services::CsvImporter do
+RSpec.describe Domain::Merchants::Services::Importers::CsvImporter do
   describe ".call" do
     let(:csv_path) { "spec/support/fixtures/valid_merchants.csv" }
     let(:csv_content) do

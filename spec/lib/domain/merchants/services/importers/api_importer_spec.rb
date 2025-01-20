@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Domain::Merchants::Services::ApiImporter do
+RSpec.describe Domain::Merchants::Services::Importers::ApiImporter do
   describe ".call" do
     let(:valid_params) do
       {

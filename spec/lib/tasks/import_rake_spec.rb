@@ -8,7 +8,7 @@ RSpec.describe "import:merchants" do
   end
 
   let(:csv_path) { Rails.root.join("db", "data", "merchants.csv").to_s }
-  let(:importer) { Domain::Merchants::Services::CsvImporter }
+  let(:importer) { Domain::Merchants::Services::Importers::CsvImporter }
 
   it "calls the CsvImporter service with the correct path" do
     expect(importer).to receive(:call).with(csv_path)

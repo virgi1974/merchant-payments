@@ -25,7 +25,7 @@ module Api
       end
 
       def create
-        merchant = Domain::Merchants::Services::ApiImporter.call(merchant_params.to_h)
+        merchant = Domain::Merchants::Services::Importers::ApiImporter.call(merchant_params.to_h)
         render MerchantPresenter.created(merchant)
       end
 
