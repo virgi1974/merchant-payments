@@ -25,7 +25,7 @@ module Api
       end
 
       def create
-        order = Domain::Orders::Services::ApiImporter.call(order_params.to_h)
+        order = Domain::Orders::Services::Importers::ApiImporter.call(order_params.to_h)
         render OrderPresenter.created(order)
       end
 

@@ -13,6 +13,6 @@ namespace :import do
   desc "Import orders from CSV file"
   task orders: :environment do
     Rails.logger.info "Starting orders import task"
-    Domain::Orders::Services::CsvImporter.call(ORDERS_CSV_PATH)
+    Domain::Orders::Services::Importers::CsvImporter.call(ORDERS_CSV_PATH)
   end
 end
