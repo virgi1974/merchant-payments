@@ -11,7 +11,7 @@ module Infrastructure
 
           validates :id, presence: true, uniqueness: true
           validates :reference, presence: true, uniqueness: true
-          validates :email, presence: true
+          validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
           validates :live_on, presence: true
           validates :disbursement_frequency, presence: true
           validates :minimum_monthly_fee_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }

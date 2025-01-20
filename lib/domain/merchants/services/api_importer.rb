@@ -23,7 +23,7 @@ module Domain
           end
         rescue StandardError => e
           Rails.logger.error "Failed to create merchant: #{e.message}"
-          raise
+          raise e.class
         end
 
         private

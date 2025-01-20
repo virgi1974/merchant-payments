@@ -3,7 +3,7 @@ module Domain
     module Services
       class CsvValidator
         REQUIRED_HEADERS = %w[ID REFERENCE EMAIL LIVE_ON DISBURSEMENT_FREQUENCY MINIMUM_MONTHLY_FEE].freeze
-        VALID_SEPARATORS = [ ",", ";", '\t' ].freeze
+        VALID_SEPARATORS = [ ",", ";", "\t" ].freeze
 
         def self.call(csv_path)
           new(csv_path).call
@@ -16,6 +16,7 @@ module Domain
 
         def call
           return { valid: false, errors: [ "CSV file not found: #{csv_path}" ], separator: nil } unless File.exist?(csv_path)
+          return { valid: false, errors: [ "CSV file is empty" ], separator: nil } if File.zero?(csv_path)
 
           separator = detect_separator
           validate_separator(separator)
@@ -46,9 +47,19 @@ module Domain
 
         def detect_separator
           first_line = File.open(csv_path, &:readline)
-          VALID_SEPARATORS.max_by { |sep| first_line.count(sep) }
-        rescue StandardError => e
-          raise CSV::MalformedCSVError, "Could not detect separator: #{e.message}"
+
+          VALID_SEPARATORS.each do |separator|
+            fields = parse_line_with_separator(first_line, separator)
+            return separator if fields&.size.to_i > 1
+          end
+
+          raise CSV::MalformedCSVError.new("Could not detect valid separator", 1)
+        end
+
+        def parse_line_with_separator(line, separator)
+          CSV.parse_line(line, col_sep: separator)
+        rescue CSV::MalformedCSVError
+          nil
         end
 
         def validate_separator(separator)

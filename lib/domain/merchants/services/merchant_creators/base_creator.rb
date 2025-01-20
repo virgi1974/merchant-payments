@@ -4,33 +4,63 @@ module Domain
     module Services
       module MerchantCreators
         class BaseCreator
-          def self.call(input)
-            new(input).call
+          class << self
+            def call(input)
+              raise NotImplementedError, "#{name} is an abstract class" if self == BaseCreator
+              new(input).call
+            end
           end
 
           def initialize(input)
-            @input = input
+            raise NotImplementedError, "#{self.class.name} is an abstract class" if instance_of?(BaseCreator)
+            @merchant_data = input
+          end
+
+          def call
+            validate_merchant_data
+            normalized_data = normalize_merchant_data
+            create_merchant(normalized_data)
           end
 
           protected
 
-          def normalize_merchant_data
-            {
-              # Common normalization logic
-              disbursement_frequency: normalize_frequency(@input[:disbursement_frequency]),
-              minimum_monthly_fee: normalize_amount(@input[:minimum_monthly_fee])
-              # ... other common fields
-            }
-          end
+          attr_reader :merchant_data
 
           private
 
-          def normalize_frequency(freq)
-            freq.to_s.downcase.to_sym
+          def validate_merchant_data
+            validate_disbursement_frequency
+            validate_minimum_monthly_fee
           end
 
-          def normalize_amount(amount)
-            (BigDecimal(amount.to_s) * 100).to_i
+          def validate_disbursement_frequency
+            unless ValueObjects::DisbursementFrequency.valid?(merchant_data.disbursement_frequency)
+              raise Domain::Merchants::Errors::InvalidDisbursementFrequency
+            end
+          end
+
+          def validate_minimum_monthly_fee
+            return if Money.from_amount(merchant_data.minimum_monthly_fee) >= Money.new(0)
+            raise Domain::Merchants::Errors::InvalidMinimumMonthlyFee
+          end
+
+          def normalize_merchant_data
+            {
+              id: merchant_data.id,
+              reference: merchant_data.reference,
+              email: merchant_data.email,
+              disbursement_frequency: ValueObjects::DisbursementFrequency.normalize(merchant_data.disbursement_frequency),
+              minimum_monthly_fee_cents: Money.from_amount(merchant_data.minimum_monthly_fee).cents,
+              live_on: merchant_data.live_on
+            }
+          end
+
+          def create_merchant(data)
+            merchant_repository.create(data)
+          end
+
+          def merchant_repository
+            @merchant_repository ||= Domain::Merchants::Repositories::MerchantRepository.new
           end
         end
       end

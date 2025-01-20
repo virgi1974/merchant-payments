@@ -23,7 +23,7 @@ module Domain
 
           unless validation[:valid]
             validation[:errors].each { |error| logger.error(error) }
-            return
+            return { success: false, errors: validation[:errors] }
           end
 
           initialize_csv_record_validator(validation[:separator])
@@ -38,10 +38,19 @@ module Domain
           end
 
           logger.info "Successfully imported #{@imported_count} merchants"
+
+          {
+            success: true,
+            imported_count: @imported_count,
+            failed_count: @failed_merchants.count,
+            failures: @failed_merchants
+          }
         rescue CSV::MalformedCSVError => e
           logger.error "CSV parsing error: #{e.message}"
+          { success: false, error: e.message }
         rescue Errno::ENOENT => e
           logger.error "CSV file not found: #{e.message}"
+          { success: false, error: e.message }
         end
 
         private
@@ -58,9 +67,11 @@ module Domain
           CSV_MERCHANT_CREATOR.call(merchant_data)
           @imported_count += 1
         rescue Dry::Struct::Error => e
+
           failed_merchants << build_error(line, row, e)
           logger.error "Invalid data at line #{line}: #{e.message}"
         rescue StandardError => e
+
           failed_merchants << build_error(line, row, e)
           logger.error "Failed to import merchant at line #{line}: #{e.message}"
         end
