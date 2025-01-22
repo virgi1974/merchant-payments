@@ -17,7 +17,8 @@ module Infrastructure
                    class_name: "Infrastructure::Persistence::ActiveRecord::Models::Order",
                    foreign_key: :merchant_reference,
                    primary_key: :reference
-          # has_many :disbursements, foreign_key: :merchant_reference, primary_key: :reference
+          has_many :disbursements,
+                   class_name: "Infrastructure::Persistence::ActiveRecord::Models::Disbursement"
           # has_many :monthly_fees, foreign_key: :merchant_reference, primary_key: :reference
 
           # 5. Validations

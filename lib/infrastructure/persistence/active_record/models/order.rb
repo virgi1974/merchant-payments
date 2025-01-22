@@ -17,6 +17,9 @@ module Infrastructure
                     class_name: "Infrastructure::Persistence::ActiveRecord::Models::Merchant",
                     foreign_key: :merchant_reference,
                     primary_key: :reference
+          belongs_to :disbursement,
+                    class_name: "Infrastructure::Persistence::ActiveRecord::Models::Disbursement",
+                    optional: true
 
           # 5. Validations
           validates :merchant_reference, presence: true

@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_20_152008) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_22_132035) do
+  create_table "disbursements", id: :string, force: :cascade do |t|
+    t.string "merchant_id", null: false
+    t.integer "amount_cents", null: false
+    t.integer "fees_amount_cents", null: false
+    t.datetime "disbursed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["merchant_id"], name: "index_disbursements_on_merchant_id"
+  end
+
   create_table "merchants", id: :string, force: :cascade do |t|
     t.string "reference", null: false
     t.string "email", null: false
@@ -31,5 +41,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_20_152008) do
     t.index ["merchant_reference"], name: "index_orders_on_merchant_reference"
   end
 
+  add_foreign_key "disbursements", "merchants"
   add_foreign_key "orders", "merchants", column: "merchant_reference", primary_key: "reference"
 end
