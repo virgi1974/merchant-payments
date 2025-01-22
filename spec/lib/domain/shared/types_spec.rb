@@ -61,4 +61,18 @@ RSpec.describe Domain::Shared::Types do
       expect { described_class::Date["not-a-date"] }.to raise_error(Dry::Types::CoercionError)
     end
   end
+
+  describe "HexId" do
+    it "accepts valid hex IDs" do
+      expect { described_class::HexId["123abc456def"] }.not_to raise_error
+      expect { described_class::HexId["ABCDEF123456"] }.not_to raise_error
+    end
+
+    it "rejects invalid hex IDs" do
+      expect { described_class::HexId["123abc"] }.to raise_error(Dry::Types::ConstraintError) # too short
+      expect { described_class::HexId["123abc456defgh"] }.to raise_error(Dry::Types::ConstraintError) # too long
+      expect { described_class::HexId["123abc456xyz"] }.to raise_error(Dry::Types::ConstraintError) # invalid chars
+      expect { described_class::HexId["not-a-hex-id"] }.to raise_error(Dry::Types::ConstraintError)
+    end
+  end
 end
