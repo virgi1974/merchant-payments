@@ -38,9 +38,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_22_132035) do
     t.string "amount_currency", default: "EUR", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["merchant_reference"], name: "index_orders_on_merchant_reference"
+    t.string "disbursement_id"
+    t.boolean "pending_disbursement", default: true, null: false
+    t.index ["disbursement_id"], name: "index_orders_on_disbursement_id"
+    t.index ["merchant_reference", "pending_disbursement", "created_at"], name: "idx_orders_on_merchant_pending_created"
   end
 
   add_foreign_key "disbursements", "merchants"
+  add_foreign_key "orders", "disbursements"
   add_foreign_key "orders", "merchants", column: "merchant_reference", primary_key: "reference"
 end
