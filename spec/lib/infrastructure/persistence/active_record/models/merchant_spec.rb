@@ -97,4 +97,18 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Merchant do
       expect { merchant.valid? }.not_to change { merchant.id }
     end
   end
+
+  describe "associations" do
+    let(:merchant) { described_class.new }
+
+    it "has many orders" do
+      expect(merchant).to respond_to(:orders)
+      expect(merchant.orders).to be_a(ActiveRecord::Associations::CollectionProxy)
+    end
+
+    it "has many disbursements" do
+      expect(merchant).to respond_to(:disbursements)
+      expect(merchant.disbursements).to be_a(ActiveRecord::Associations::CollectionProxy)
+    end
+  end
 end

@@ -86,4 +86,18 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Order do
       expect(order.merchant).to eq(merchant)
     end
   end
+
+  describe "associations" do
+    let(:order) { described_class.new }
+
+    it "belongs to merchant" do
+      expect(order).to respond_to(:merchant)
+      expect(order).to respond_to(:merchant=)
+    end
+
+    it "belongs to disbursement" do
+      expect(order).to respond_to(:disbursement)
+      expect(order).to respond_to(:disbursement=)
+    end
+  end
 end
