@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_22_132035) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_25_185912) do
   create_table "disbursements", id: :string, force: :cascade do |t|
     t.string "merchant_id", null: false
     t.integer "amount_cents", null: false
@@ -32,6 +32,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_22_132035) do
     t.index ["reference"], name: "index_merchants_on_reference", unique: true
   end
 
+  create_table "monthly_fee_adjustments", force: :cascade do |t|
+    t.string "merchant_id", null: false
+    t.integer "amount_cents", null: false
+    t.integer "month", null: false
+    t.integer "year", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["merchant_id", "month", "year"], name: "idx_monthly_fee_adjustments_on_merchant_month_year", unique: true
+    t.index ["merchant_id"], name: "index_monthly_fee_adjustments_on_merchant_id"
+  end
+
   create_table "orders", id: :string, force: :cascade do |t|
     t.string "merchant_reference", null: false
     t.integer "amount_cents", null: false
@@ -45,6 +56,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_22_132035) do
   end
 
   add_foreign_key "disbursements", "merchants"
+  add_foreign_key "monthly_fee_adjustments", "merchants"
   add_foreign_key "orders", "disbursements"
   add_foreign_key "orders", "merchants", column: "merchant_reference", primary_key: "reference"
 end

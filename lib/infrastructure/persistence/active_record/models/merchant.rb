@@ -19,7 +19,8 @@ module Infrastructure
                    primary_key: :reference
           has_many :disbursements,
                    class_name: "Infrastructure::Persistence::ActiveRecord::Models::Disbursement"
-          # has_many :monthly_fees, foreign_key: :merchant_reference, primary_key: :reference
+          has_many :monthly_fee_adjustments,
+                   class_name: "Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment"
 
           # 5. Validations
           validates :id, presence: true, uniqueness: true
