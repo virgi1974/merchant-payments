@@ -32,6 +32,11 @@ module Infrastructure
           # 7. Scopes (if any)
           scope :pending_disbursement, -> { where(pending_disbursement: true) }
           scope :by_creation, -> { order(created_at: :asc) }
+          scope :mark_as_disbursed, ->(order_ids) {
+            where(id: order_ids)
+              .in_batches(of: 1000)
+              .update_all(pending_disbursement: false)
+          }
 
           # 8. Class methods
 

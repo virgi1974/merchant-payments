@@ -58,6 +58,39 @@ RSpec.describe Domain::Disbursements::Repositories::DisbursementRepository do
       expect(disbursement.orders).to include(order)
     end
 
+    it "updates associated orders' pending_disbursement status" do
+      repository.create(valid_attributes)
+      expect(order.reload.pending_disbursement).to be false
+    end
+
+    context "with multiple orders" do
+      let(:order2) do
+        Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
+          id: "order_2",
+          merchant_reference: merchant.reference,
+          amount_cents: 2000,
+          created_at: Time.current,
+          pending_disbursement: true
+        )
+      end
+
+      let(:valid_attributes) do
+        {
+          merchant_id: merchant.id,
+          amount_cents: 3000,
+          fees_amount_cents: 20,
+          orders: [ order, order2 ],
+          disbursed_at: Time.current.utc
+        }
+      end
+
+      it "updates all orders' pending_disbursement status" do
+        repository.create(valid_attributes)
+        expect(order.reload.pending_disbursement).to be false
+        expect(order2.reload.pending_disbursement).to be false
+      end
+    end
+
     context "when creation fails" do
       let(:invalid_attributes) { valid_attributes.merge(merchant_id: nil) }
 

@@ -165,5 +165,28 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Order do
         expect(described_class.by_creation).to eq([ older_order, newer_order ])
       end
     end
+
+    describe ".mark_as_disbursed" do
+      let!(:orders) do
+        3.times.map do
+          described_class.create!(
+            id: SecureRandom.hex(6),
+            merchant_reference: merchant.reference,
+            amount_cents: 1000,
+            amount_currency: "EUR",
+            created_at: Time.current,
+            pending_disbursement: true
+          )
+        end
+      end
+
+      it "marks orders as disbursed in batches" do
+        described_class.mark_as_disbursed(orders.map(&:id))
+
+        orders.each do |order|
+          expect(order.reload.pending_disbursement).to be false
+        end
+      end
+    end
   end
 end

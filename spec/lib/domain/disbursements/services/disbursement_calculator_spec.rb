@@ -34,7 +34,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
             expect(result[:successful].first.orders).to include(todays_order)
           end
 
-          xit "marks orders as disbursed" do
+          it "marks orders as disbursed" do
             calculator.create_disbursements
             expect(todays_order.reload.pending_disbursement).to be false
           end
@@ -133,6 +133,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
 
         it "processes orders for the given date" do
           result = calculator.create_disbursements
+
           expect(result[:successful].first.orders).to include(past_order)
           expect(result[:failed]).to be_empty
         end
