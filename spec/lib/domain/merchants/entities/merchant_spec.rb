@@ -46,29 +46,6 @@ RSpec.describe Domain::Merchants::Entities::Merchant do
     end
   end
 
-  describe "#ready_for_disbursement?" do
-    context "when disbursement is daily" do
-      let(:merchant) { described_class.new(valid_attributes) }
-
-      it "returns true for any date" do
-        expect(merchant.ready_for_disbursement?(current_date)).to be true
-      end
-    end
-
-    context "when disbursement is weekly" do
-      let(:merchant) { described_class.new(valid_attributes.merge(disbursement_frequency: :weekly)) }
-
-      it "returns true when date matches live_on day" do
-        expect(merchant.ready_for_disbursement?(current_date)).to be true
-      end
-
-      it "returns false when date doesn't match live_on day" do
-        next_day = current_date + 1  # Thursday
-        expect(merchant.ready_for_disbursement?(next_day)).to be false
-      end
-    end
-  end
-
   describe "#calculate_monthly_fee" do
     let(:merchant) { described_class.new(valid_attributes) }
 

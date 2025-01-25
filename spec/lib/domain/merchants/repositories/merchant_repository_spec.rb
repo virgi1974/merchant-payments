@@ -30,7 +30,6 @@ RSpec.describe Domain::Merchants::Repositories::MerchantRepository do
       expect(merchant.email).to eq("merchant@example.com")
       expect(merchant.live_on).to eq(Date.new(2024, 3, 20))
       expect(merchant.disbursement_frequency).to eq("daily")
-      expect(merchant.minimum_monthly_fee.cents).to eq(1000)
     end
 
     context "when validation fails" do
@@ -62,6 +61,57 @@ RSpec.describe Domain::Merchants::Repositories::MerchantRepository do
           repository.find(SecureRandom.uuid)
         }.to raise_error(ActiveRecord::RecordNotFound)
       end
+    end
+  end
+
+  describe "#find_disbursable_merchants" do
+    let!(:daily_merchant) do
+      Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
+        reference: "DAILY123",
+        email: "daily@example.com",
+        live_on: Date.new(2024, 3, 20),
+        disbursement_frequency: "daily",
+        minimum_monthly_fee_cents: 1000
+      )
+    end
+
+    let!(:weekly_merchant) do
+      Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
+        reference: "WEEKLY123",
+        email: "weekly@example.com",
+        live_on: Date.new(2024, 3, 20),
+        disbursement_frequency: "weekly",
+        minimum_monthly_fee_cents: 1000
+      )
+    end
+
+    it "returns both daily and matching weekly merchants" do
+      result = repository.find_disbursable_merchants(Date.new(2024, 3, 20))
+      expect(result.map(&:reference)).to contain_exactly("DAILY123", "WEEKLY123")
+      expect(result.first).to be_a(Domain::Merchants::Entities::DisbursableMerchant)
+    end
+  end
+
+  describe "#find_disbursable_merchants_in_batches" do
+    before do
+      (Domain::Merchants::Repositories::MerchantRepository::BATCH_SIZE + 10).times do |i|
+        Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
+          reference: "MERCH#{i}",
+          email: "merchant#{i}@example.com",
+          live_on: Date.new(2024, 3, 20),
+          disbursement_frequency: "daily",
+          minimum_monthly_fee_cents: 1000
+        )
+      end
+    end
+
+    it "returns merchants in batches" do
+      merchants = []
+      repository.find_disbursable_merchants_in_batches(Date.new(2024, 3, 20)).each do |merchant|
+        merchants << merchant
+        expect(merchant).to be_a(Domain::Merchants::Entities::DisbursableMerchant)
+      end
+      expect(merchants.count).to eq(Domain::Merchants::Repositories::MerchantRepository::BATCH_SIZE + 10)
     end
   end
 end

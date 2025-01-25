@@ -32,6 +32,17 @@ module Infrastructure
           # 6. Callbacks (if any)
 
           # 7. Scopes (if any)
+          scope :with_frequency, ->(frequency) { where(disbursement_frequency: frequency) }
+          scope :matching_weekday, ->(date) {
+            where("CAST(strftime('%w', live_on) AS INTEGER) = ?", date.wday)
+          }
+          scope :with_pending_orders, ->(start_time:, end_time:) {
+            includes(:orders)
+              .where(orders: {
+                pending_disbursement: true,
+                created_at: start_time..end_time
+              })
+          }
 
           # 8. Class methods
 
