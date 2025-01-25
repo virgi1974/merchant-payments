@@ -114,6 +114,11 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Merchant do
       expect(merchant).to respond_to(:disbursements)
       expect(merchant.disbursements).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
+
+    it "has many monthly_fee_adjustments" do
+      expect(merchant).to respond_to(:monthly_fee_adjustments)
+      expect(merchant.monthly_fee_adjustments).to be_a(ActiveRecord::Associations::CollectionProxy)
+    end
   end
 
   describe "scopes" do
