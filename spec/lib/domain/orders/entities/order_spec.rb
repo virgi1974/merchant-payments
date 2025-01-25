@@ -27,7 +27,7 @@ RSpec.describe Domain::Orders::Entities::Order do
     end
 
     it "sets the amount" do
-      expect(order.amount_cents).to eq(Money.new(10050))
+      expect(order.amount_cents).to eq(Money.new(10050).cents)
     end
 
     it "sets the currency" do

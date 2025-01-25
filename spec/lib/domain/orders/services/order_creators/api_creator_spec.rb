@@ -37,7 +37,7 @@ RSpec.describe Domain::Orders::Services::OrderCreators::ApiCreator do
       order = described_class.call(order_data)
       expect(order).to be_a(Domain::Orders::Entities::Order)
       expect(order.merchant_reference).to eq("MERCH123")
-      expect(order.amount_cents).to eq(Money.new(10050))
+      expect(order.amount_cents).to eq(Money.new(10050).cents)
     end
 
     context "with invalid input type" do

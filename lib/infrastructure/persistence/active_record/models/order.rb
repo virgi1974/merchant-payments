@@ -30,6 +30,8 @@ module Infrastructure
           # 6. Callbacks (if any)
 
           # 7. Scopes (if any)
+          scope :pending_disbursement, -> { where(pending_disbursement: true) }
+          scope :by_creation, -> { order(created_at: :asc) }
 
           # 8. Class methods
 

@@ -37,7 +37,7 @@ RSpec.describe Domain::Orders::Services::Importers::ApiImporter do
       it "sets the correct attributes" do
         order = described_class.call(valid_params)
         expect(order.merchant_reference).to eq("MERCH123")
-        expect(order.amount_cents).to eq(Money.new(10050))
+        expect(order.amount_cents).to eq(Money.new(10050).cents)
         expect(order.created_at).to eq(Date.new(2024, 3, 20))
       end
 

@@ -100,4 +100,70 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Order do
       expect(order).to respond_to(:disbursement=)
     end
   end
+
+  describe "scopes" do
+    let(:merchant) do
+      Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
+        reference: "MERCH123",
+        email: "merchant@example.com",
+        live_on: Date.current,
+        disbursement_frequency: "daily",
+        minimum_monthly_fee_cents: 1000
+      )
+    end
+
+    describe ".pending_disbursement" do
+      let!(:pending_order) do
+        described_class.create!(
+          id: SecureRandom.hex(6),
+          merchant_reference: merchant.reference,
+          amount_cents: 1000,
+          amount_currency: "EUR",
+          created_at: Time.current,
+          pending_disbursement: true
+        )
+      end
+
+      let!(:processed_order) do
+        described_class.create!(
+          id: SecureRandom.hex(6),
+          merchant_reference: merchant.reference,
+          amount_cents: 1000,
+          amount_currency: "EUR",
+          created_at: Time.current,
+          pending_disbursement: false
+        )
+      end
+
+      it "returns only pending orders" do
+        expect(described_class.pending_disbursement).to contain_exactly(pending_order)
+      end
+    end
+
+    describe ".by_creation" do
+      let!(:older_order) do
+        described_class.create!(
+          id: SecureRandom.hex(6),
+          merchant_reference: merchant.reference,
+          amount_cents: 1000,
+          amount_currency: "EUR",
+          created_at: 1.day.ago
+        )
+      end
+
+      let!(:newer_order) do
+        described_class.create!(
+          id: SecureRandom.hex(6),
+          merchant_reference: merchant.reference,
+          amount_cents: 1000,
+          amount_currency: "EUR",
+          created_at: Time.current
+        )
+      end
+
+      it "orders by created_at ascending" do
+        expect(described_class.by_creation).to eq([ older_order, newer_order ])
+      end
+    end
+  end
 end
