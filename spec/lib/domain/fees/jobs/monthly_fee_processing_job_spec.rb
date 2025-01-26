@@ -1,7 +1,7 @@
 require "rails_helper"
-require "rake"
 
 RSpec.describe Domain::Fees::Jobs::MonthlyFeeProcessingJob, type: :job do
+  include_context "rake"
   include ActiveJob::TestHelper
   include ActiveSupport::Testing::TimeHelpers
 

@@ -4,6 +4,8 @@ module Domain
   module Disbursements
     module Jobs
       RSpec.describe DisbursementCreationJob do
+        include_context "rake"
+
         describe "#perform" do
           let(:job) { described_class.new }
           let(:rake_task) { double("Rake::Task") }

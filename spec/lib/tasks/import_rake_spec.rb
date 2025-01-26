@@ -1,17 +1,17 @@
 require "rails_helper"
-require "rake"
 
 RSpec.describe "import:merchants" do
+  include_context "rake"
+
   before do
-    Rails.application.load_tasks  # Load all rake tasks
-    Rake::Task.define_task(:environment)
+    Rake.application.rake_require("import", [ Rails.root.join("lib/tasks").to_s ])
   end
 
   let(:csv_path) { Rails.root.join("db", "data", "merchants.csv").to_s }
   let(:importer) { Domain::Merchants::Services::Importers::CsvImporter }
 
   it "calls the CsvImporter service with the correct path" do
-    expect(importer).to receive(:call).with(csv_path)
+    expect(importer).to receive(:call).with(csv_path).once
     Rake::Task["import:merchants"].invoke
   end
 end
