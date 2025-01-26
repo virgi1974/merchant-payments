@@ -298,6 +298,8 @@ GEM
       rubocop-performance
       rubocop-rails
     ruby-progressbar (1.13.0)
+    rufus-scheduler (3.9.2)
+      fugit (~> 1.1, >= 1.11.1)
     securerandom (0.4.1)
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -378,6 +380,7 @@ DEPENDENCIES
   rspec
   rspec-rails
   rubocop-rails-omakase
+  rufus-scheduler
   simplecov
   solid_cable
   solid_cache
