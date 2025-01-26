@@ -8,15 +8,18 @@ module Domain
         end
 
         def end_time
-          @date.end_of_day.utc
+          # Previous day end (23:59:59 UTC)
+          (@date - 1.day).end_of_day.utc
         end
 
         def start_time
           case @frequency
           when "daily"
-            @date.beginning_of_day.utc
+            # Previous day start (00:00:00 UTC)
+            (@date - 1.day).beginning_of_day.utc
           when "weekly"
-            (@date - 6.days).beginning_of_day.utc
+            # 7 full days back, ending yesterday
+            (@date - 7.days).beginning_of_day.utc
           else
             raise ArgumentError, "Unknown frequency: #{@frequency}"
           end

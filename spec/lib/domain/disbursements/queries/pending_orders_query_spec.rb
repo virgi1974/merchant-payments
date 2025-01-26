@@ -38,7 +38,7 @@ RSpec.describe Domain::Disbursements::Queries::PendingOrdersQuery do
       before do
         create_order(
           id: "order1",
-          created_at: time_today
+          created_at: time_yesterday
         )
         create_order(
           id: "order2",
@@ -46,13 +46,13 @@ RSpec.describe Domain::Disbursements::Queries::PendingOrdersQuery do
         )
       end
 
-      it "returns orders from last 24h as domain entities" do
+      it "returns orders from previous day as domain entities" do
         result = query.call(merchant)
 
         expect(result.size).to eq(1)
         expect(result.first).to be_a(Infrastructure::Persistence::ActiveRecord::Models::Order)
         expect(result.first.id).to eq("order1")
-        expect(result.first.created_at).to be_within(1.second).of(time_today) ######
+        expect(result.first.created_at).to be_within(1.second).of(time_yesterday)
       end
 
       it "returns empty array when no orders exist" do
@@ -122,10 +122,10 @@ RSpec.describe Domain::Disbursements::Queries::PendingOrdersQuery do
       let(:disbursement_frequency) { "daily" }
 
       it "handles orders within the daily window" do
-        # Create order at start of window
+        # Create order at start of window (yesterday's beginning)
         order = create_order(
           id: "border_order",
-          created_at: time_today # beginning of current day
+          created_at: time_yesterday # beginning of previous day
         )
 
         result = query.call(merchant)
@@ -133,10 +133,10 @@ RSpec.describe Domain::Disbursements::Queries::PendingOrdersQuery do
       end
 
       it "excludes orders outside the daily window" do
-        # Create order just before window starts
+        # Create order just before window starts (two days ago)
         order = create_order(
           id: "outside_window",
-          created_at: time_yesterday - 1.second
+          created_at: time_two_days_ago
         )
 
         result = query.call(merchant)

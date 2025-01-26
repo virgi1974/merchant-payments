@@ -12,17 +12,17 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
             Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
               reference: "daily_merchant",
               disbursement_frequency: "daily",
-              live_on: reference_date,
+              live_on: reference_date - 1.day,  # Live before orders
               email: "daily@example.com",
               minimum_monthly_fee_cents: 2900
             )
           end
 
-          let!(:todays_order) do
+          let!(:yesterdays_order) do
             Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
               merchant_reference: daily_merchant.reference,
               amount_cents: 5000,
-              created_at: reference_date
+              created_at: reference_date - 1.day  # Yesterday's order
             )
           end
 
@@ -31,12 +31,12 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
 
             expect(result[:successful].first).to be_a(Domain::Disbursements::Entities::Disbursement)
             expect(result[:successful].first.amount_cents).to eq(5000)
-            expect(result[:successful].first.orders).to include(todays_order)
+            expect(result[:successful].first.orders).to include(yesterdays_order)
           end
 
           it "marks orders as disbursed" do
             calculator.create_disbursements
-            expect(todays_order.reload.pending_disbursement).to be false
+            expect(yesterdays_order.reload.pending_disbursement).to be false
           end
         end
 
@@ -45,7 +45,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
             Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
               reference: "daily_merchant",
               disbursement_frequency: "daily",
-              live_on: reference_date,
+              live_on: reference_date - 1.day,
               email: "daily@example.com",
               minimum_monthly_fee_cents: 2900
             )
@@ -55,7 +55,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
             Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
               merchant_reference: daily_merchant.reference,
               amount_cents: 3000,
-              created_at: reference_date - 1.day
+              created_at: reference_date - 2.days  # Order from 2 days ago
             )
           end
 
@@ -117,7 +117,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
           Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
             reference: "daily_merchant",
             disbursement_frequency: "daily",
-            live_on: past_date,
+            live_on: past_date - 1.day,  # Live before the order
             email: "daily@example.com",
             minimum_monthly_fee_cents: 2900
           )
@@ -127,7 +127,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
           Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
             merchant_reference: daily_merchant.reference,
             amount_cents: 5000,
-            created_at: past_date
+            created_at: past_date - 1.day  # Order from day before past_date
           )
         end
 
@@ -228,7 +228,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
         Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
           reference: "daily_merchant",
           disbursement_frequency: "daily",
-          live_on: reference_date,
+          live_on: reference_date - 1.day,
           email: "daily@example.com",
           minimum_monthly_fee_cents: 2900
         )
@@ -248,7 +248,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
         Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
           merchant_reference: daily_merchant.reference,
           amount_cents: 5000,
-          created_at: reference_date
+          created_at: reference_date - 1.day  # Yesterday's order
         )
       end
 
@@ -256,7 +256,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
         Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
           merchant_reference: weekly_merchant.reference,
           amount_cents: 3000,
-          created_at: reference_date - 2.days
+          created_at: reference_date - 2.days  # Order within the week
         )
       end
 
@@ -277,7 +277,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
           Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
             reference: "daily_merchant1",
             disbursement_frequency: "daily",
-            live_on: reference_date,
+            live_on: reference_date - 1.day,  # Live before orders
             email: "daily1@example.com",
             minimum_monthly_fee_cents: 2900
           )
@@ -287,7 +287,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
           Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
             reference: "daily_merchant2",
             disbursement_frequency: "daily",
-            live_on: reference_date,
+            live_on: reference_date - 1.day,  # Live before orders
             email: "daily2@example.com",
             minimum_monthly_fee_cents: 2900
           )
@@ -297,7 +297,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
           Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
             merchant_reference: daily_merchant1.reference,
             amount_cents: 5000,
-            created_at: reference_date
+            created_at: reference_date - 1.day  # Yesterday's order
           )
         end
 
@@ -305,7 +305,7 @@ RSpec.describe Domain::Disbursements::Services::DisbursementCalculator do
           Infrastructure::Persistence::ActiveRecord::Models::Order.create!(
             merchant_reference: daily_merchant2.reference,
             amount_cents: 3000,
-            created_at: reference_date
+            created_at: reference_date - 1.day  # Yesterday's order
           )
         end
 
