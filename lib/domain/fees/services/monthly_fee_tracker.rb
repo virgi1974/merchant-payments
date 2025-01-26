@@ -1,5 +1,5 @@
 module Domain
-  module Disbursements
+  module Fees
     module Services
       class MonthlyFeeTracker
         def initialize(repository = Repositories::MonthlyFeeRepository.new)

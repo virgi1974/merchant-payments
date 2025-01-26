@@ -12,7 +12,7 @@ namespace :monthly_fees do
 
     previous_month = today - 1.month
     merchant_repository = Domain::Fees::Repositories::MerchantRepository.new
-    tracker = Domain::Disbursements::Services::MonthlyFeeTracker.new(merchant_repository)
+    tracker = Domain::Fees::Services::MonthlyFeeTracker.new(merchant_repository)
 
     Rails.logger.info "Processing fees for #{previous_month.strftime("%B %Y")}"
 

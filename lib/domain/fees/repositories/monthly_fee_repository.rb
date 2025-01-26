@@ -1,5 +1,5 @@
 module Domain
-  module Disbursements
+  module Fees
     module Repositories
       class MonthlyFeeRepository
         DISBURSEMENT_MODEL = Infrastructure::Persistence::ActiveRecord::Models::Disbursement

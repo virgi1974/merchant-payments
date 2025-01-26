@@ -1,7 +1,7 @@
 require "rails_helper"
 
-RSpec.describe Domain::Disbursements::Services::MonthlyFeeTracker, type: :integration do
-  let(:repository) { Domain::Disbursements::Repositories::MonthlyFeeRepository.new }
+RSpec.describe Domain::Fees::Services::MonthlyFeeTracker, type: :integration do
+  let(:repository) { Domain::Fees::Repositories::MonthlyFeeRepository.new }
   let(:merchant) do
     Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
       reference: "test_merchant",

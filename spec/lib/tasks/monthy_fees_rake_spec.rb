@@ -5,7 +5,7 @@ RSpec.describe "monthly_fees:process rake task" do
   include ActiveSupport::Testing::TimeHelpers
 
   let(:merchant_repository) { instance_double(Domain::Fees::Repositories::MerchantRepository) }
-  let(:monthly_fee_tracker) { instance_double(Domain::Disbursements::Services::MonthlyFeeTracker) }
+  let(:monthly_fee_tracker) { instance_double(Domain::Fees::Services::MonthlyFeeTracker) }
   let(:merchant) do
     instance_double(Domain::Merchants::Entities::DisbursableMerchant,
     id: 1,
@@ -19,7 +19,7 @@ RSpec.describe "monthly_fees:process rake task" do
     Rails.application.load_tasks
     Rake::Task.define_task(:environment)
     allow(Domain::Fees::Repositories::MerchantRepository).to receive(:new).and_return(merchant_repository)
-    allow(Domain::Disbursements::Services::MonthlyFeeTracker).to receive(:new).and_return(monthly_fee_tracker)
+    allow(Domain::Fees::Services::MonthlyFeeTracker).to receive(:new).and_return(monthly_fee_tracker)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
   end
