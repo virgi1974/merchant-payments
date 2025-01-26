@@ -1,10 +1,16 @@
-# lib/tasks/disbursements.rake
 namespace :disbursements do
-  desc "Process daily disbursements"
-  task process: :environment do
-    calculator = Domain::Disbursements::Services::DisbursementCalculator.new
-    disbursements = calculator.create_disbursements
+  desc "Create daily disbursements for a specific date (defaults to current date)"
+  task :create, [ :date ] => :environment do |_t, args|
+    date = if args[:date]
+             Date.parse(args[:date])
+    else
+             Date.current
+    end
 
-    Rails.logger.info "Processed #{disbursements.count} disbursements"
+    calculator = Domain::Disbursements::Services::DisbursementCalculator.new(date)
+    results = calculator.create_disbursements
+
+    Rails.logger.info "Created #{results[:successful].count} disbursements for #{date}"
+    Rails.logger.error "Failed #{results[:failed].count} disbursements" if results[:failed].any?
   end
 end
