@@ -104,4 +104,72 @@ RSpec.describe Domain::Fees::Repositories::MonthlyFeeRepository do
       end
     end
   end
+
+  describe "#count_for_year" do
+    let(:year) { 2024 }
+
+    before do
+      Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment.create!(
+        merchant: merchant,
+        amount_cents: 1000,
+        month: 1,
+        year: year
+      )
+      Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment.create!(
+        merchant: merchant,
+        amount_cents: 2000,
+        month: 2,
+        year: year
+      )
+      # Different year
+      Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment.create!(
+        merchant: merchant,
+        amount_cents: 3000,
+        month: 1,
+        year: year + 1
+      )
+    end
+
+    it "returns the count of adjustments for the specified year" do
+      expect(repository.count_for_year(year)).to eq(2)
+    end
+
+    it "returns zero when no adjustments exist for the year" do
+      expect(repository.count_for_year(2020)).to eq(0)
+    end
+  end
+
+  describe "#sum_amount_for_year" do
+    let(:year) { 2024 }
+
+    before do
+      Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment.create!(
+        merchant: merchant,
+        amount_cents: 1000,
+        month: 1,
+        year: year
+      )
+      Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment.create!(
+        merchant: merchant,
+        amount_cents: 2000,
+        month: 2,
+        year: year
+      )
+      # Different year
+      Infrastructure::Persistence::ActiveRecord::Models::MonthlyFeeAdjustment.create!(
+        merchant: merchant,
+        amount_cents: 3000,
+        month: 1,
+        year: year + 1
+      )
+    end
+
+    it "returns the sum of adjustment amounts for the specified year" do
+      expect(repository.sum_amount_for_year(year)).to eq(3000) # 1000 + 2000
+    end
+
+    it "returns zero when no adjustments exist for the year" do
+      expect(repository.sum_amount_for_year(2020)).to eq(0)
+    end
+  end
 end
