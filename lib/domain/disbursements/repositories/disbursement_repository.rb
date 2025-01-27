@@ -29,6 +29,16 @@ module Domain
             .date_range
         end
 
+        def for_year(year)
+          records = DISBURSEMENT_MODEL.for_year(year)
+
+          {
+            size: records.size,
+            sum_amount: records.any? ? records.sum_amount_for_year(year) : 0,
+            sum_fees: records.any? ? records.sum_fees_for_year(year) : 0
+          }
+        end
+
         private
 
         def update_orders_status(order_ids)

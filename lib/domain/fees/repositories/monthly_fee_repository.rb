@@ -32,6 +32,14 @@ module Domain
           MONTHLY_FEE_ADJUSTMENT_MODEL
             .exists?(merchant: merchant, month: month, year: year)
         end
+
+        def count_for_year(year)
+          MONTHLY_FEE_ADJUSTMENT_MODEL.count_for_year(year)
+        end
+
+        def sum_amount_for_year(year)
+          MONTHLY_FEE_ADJUSTMENT_MODEL.total_amount_for_year(year)
+        end
       end
     end
   end

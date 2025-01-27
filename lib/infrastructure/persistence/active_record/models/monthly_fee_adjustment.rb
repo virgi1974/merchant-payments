@@ -26,6 +26,9 @@ module Infrastructure
 
           # 7. Scopes (if any)
           scope :for_month_and_year, ->(month, year) { where(month: month, year: year) }
+          scope :for_year, ->(year) { where(year: year) }
+          scope :total_amount_for_year, ->(year) { for_year(year).sum(:amount_cents) }
+          scope :count_for_year, ->(year) { for_year(year).count }
 
           # 8. Class methods
 

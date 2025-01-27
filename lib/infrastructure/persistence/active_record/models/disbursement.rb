@@ -26,6 +26,9 @@ module Infrastructure
           # 6. Callbacks (if any)
 
           # 7. Scopes (if any)
+          scope :for_year, ->(year) { where("strftime('%Y', created_at) = ?", year.to_s) }
+          scope :sum_amount_for_year, ->(year) { for_year(year).sum(:amount_cents) }
+          scope :sum_fees_for_year, ->(year) { for_year(year).sum(:fees_amount_cents) }
 
           # 8. Class methods
 
