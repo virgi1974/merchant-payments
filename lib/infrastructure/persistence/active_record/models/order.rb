@@ -32,6 +32,12 @@ module Infrastructure
           # 7. Scopes (if any)
           scope :pending_disbursement, -> { where(pending_disbursement: true) }
           scope :by_creation, -> { order(created_at: :asc) }
+          scope :date_range, -> {
+            select(
+              "date(MIN(created_at)) as min_date,
+               date(MAX(created_at)) as max_date"
+            ).first
+          }
           scope :mark_as_disbursed, ->(order_ids) {
             where(id: order_ids)
               .in_batches(of: 1000)

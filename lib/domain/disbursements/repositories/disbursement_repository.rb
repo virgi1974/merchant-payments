@@ -21,6 +21,14 @@ module Domain
           DISBURSEMENT_ENTITY.new(record.attributes.symbolize_keys)
         end
 
+        def date_range
+          return nil unless ORDER_MODEL.pending_disbursement.exists?
+
+          ORDER_MODEL
+            .pending_disbursement
+            .date_range
+        end
+
         private
 
         def update_orders_status(order_ids)

@@ -29,6 +29,7 @@ module Domain
 
         def process_merchant_disbursement(merchant, results)
           ActiveRecord::Base.transaction do
+            sleep(0.025)
             calculator = build_frequency_based_calculator(merchant)
             disbursement = calculator.calculate_and_create
             results[:successful] << disbursement if disbursement
