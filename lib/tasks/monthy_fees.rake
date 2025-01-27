@@ -12,6 +12,35 @@ namespace :monthly_fees do
     process_monthly_fees(target_date)
   end
 
+  desc "Process monthly fees for a range of past months"
+  task :process_historical, [ :start_year ] => :environment do |_, args|
+    start_year = (args[:start_year] || 2022).to_i
+    end_year = 2023
+
+    unless start_year.between?(2022, end_year)
+      puts "Invalid start_year: #{start_year}. Must be between 2022 and #{end_year}"
+      next
+    end
+
+    puts "Starting historical processing from #{start_year} to #{end_year}"
+    total_adjustments = 0
+
+    (start_year..end_year).each do |year|
+      12.times do |month|
+        target_date = Date.new(year, month + 1, 1)
+        break if target_date > Date.current
+
+        puts "\nProcessing #{target_date.strftime("%B %Y")}..."
+        process_monthly_fees(target_date)
+      end
+    end
+
+    puts "\nHistorical processing completed!"
+  rescue StandardError => e
+    puts "Error in historical processing: #{e.message}"
+    raise e
+  end
+
   private
 
   def process_monthly_fees(target_date)
