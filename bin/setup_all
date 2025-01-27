@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+require_relative "../config/environment"
+require "rake"
+
+Rails.application.load_tasks
+
+tasks = [
+  "db:create",
+  "db:migrate",
+  "import:merchants",
+  "import:orders",
+  "disbursements:import_without_retries",
+  "stats:calculate_table_data"
+]
+
+tasks.each do |task|
+  sleep 0.5
+  puts "Running: #{task}"
+  Rake::Task[task].invoke
+  Rake::Task[task].reenable # Allows the task to be run again if needed
+end
