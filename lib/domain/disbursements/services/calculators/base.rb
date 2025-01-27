@@ -3,17 +3,17 @@ module Domain
     module Services
       module Calculators
         class Base
-          def initialize(merchant, date, repository)
+          def initialize(merchant, date, repository, skip_live_on_check = false)
             @merchant = merchant
             @date = date
             @repository = repository
             @fee_calculator = FeeCalculator.new
             @orders_query = Queries::PendingOrdersQuery.new(date)
+            @skip_live_on_check = skip_live_on_check
           end
 
           def calculate_and_create
             orders = fetch_orders
-            # binding.break
             return if orders.empty?
 
             create_disbursement(orders)

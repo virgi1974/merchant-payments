@@ -20,7 +20,7 @@ module Domain
           ORDER_MODEL
             .where(merchant_reference: merchant_reference)
             .pending_disbursement
-            .where("created_at BETWEEN ? AND ?", start_time, end_time)
+            .where("created_at BETWEEN ? AND ?", start_time - 2.seconds, end_time)
             .by_creation
         end
       end

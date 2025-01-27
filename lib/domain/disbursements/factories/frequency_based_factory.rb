@@ -7,11 +7,11 @@ module Domain
           "weekly" => Domain::Disbursements::Services::Calculators::Weekly
         }.freeze
 
-        def self.create(frequency, merchant, date, repository)
+        def self.create(frequency, merchant, date, repository, skip_live_on_check)
           service_class = SERVICES[frequency] or
             raise Errors::InvalidFrequencyError, "Unknown frequency: #{frequency}"
 
-          service_class.new(merchant, date, repository)
+          service_class.new(merchant, date, repository, skip_live_on_check)
         end
       end
     end

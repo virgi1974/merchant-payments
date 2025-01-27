@@ -1,13 +1,19 @@
 namespace :disbursements do
   desc "Calculate historical disbursements for imported orders"
-  task import: :calculate_historical_without_retries do
+  task import_without_retries: :environment do
+    require "active_support/testing/time_helpers"
+    include ActiveSupport::Testing::TimeHelpers
+
     repository = Domain::Disbursements::Repositories::DisbursementRepository.new
     date_range = repository.date_range
 
-    start_date = date_range.min_date.to_date
-    end_date = date_range.max_date.to_date
+    if date_range.nil?
+      puts "No date range found, exiting..."
+      next
+    end
 
-    return if start_date.nil?
+    start_date = date_range.min_date.to_date - 1.day
+    end_date = date_range.max_date.to_date + 1.day
 
     puts "Starting historical disbursement calculation..."
     puts "time: #{Time.current}"
@@ -19,13 +25,15 @@ namespace :disbursements do
     failed_count = 0
 
     while current_date <= end_date
-      puts "Processing date: #{current_date}"
-      calculator = Domain::Disbursements::Services::DisbursementCalculator.new(current_date)
-      results = calculator.create_disbursements
+      travel_to(current_date.beginning_of_day) do
+        puts "Processing date: #{current_date}"
+        calculator = Domain::Disbursements::Services::DisbursementCalculator.new(current_date, true)
+        results = calculator.create_disbursements
 
-      successful_count += results[:successful].size
-      failed_count += results[:failed].size
-      puts "Date: #{current_date} - Success: #{results[:successful].size}, Failed: #{results[:failed].size}"
+        successful_count += results[:successful].size
+        failed_count += results[:failed].size
+        puts "Date: #{current_date} - Success: #{results[:successful].size}, Failed: #{results[:failed].size}"
+      end
 
       current_date += 1.day
     end

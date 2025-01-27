@@ -31,6 +31,13 @@ module Domain
             .map { |record| DISBURSABLE_MERCHANT_ENTITY.new(record.attributes.symbolize_keys) }
         end
 
+        def find_historical_disbursable_merchants_in_batches(date)
+          find_disbursable_daily
+            .or(find_historical_disbursable_weekly)
+            .find_each(batch_size: BATCH_SIZE)
+            .map { |record| DISBURSABLE_MERCHANT_ENTITY.new(record.attributes.symbolize_keys) }
+        end
+
         private
 
         def find_disbursable_daily
@@ -41,6 +48,10 @@ module Domain
           MERCHANT_MODEL
             .with_frequency("weekly")
             .matching_weekday(date)
+        end
+
+        def find_historical_disbursable_weekly
+          MERCHANT_MODEL.with_frequency("weekly")
         end
       end
     end

@@ -14,7 +14,7 @@ module Domain
           private
 
           def process_today?
-            @merchant.live_on.wday == @date.wday
+            @skip_live_on_check ? true : @merchant.live_on.wday == @date.wday
           end
         end
       end

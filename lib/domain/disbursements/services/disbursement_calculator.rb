@@ -2,16 +2,17 @@ module Domain
   module Disbursements
     module Services
       class DisbursementCalculator
-        def initialize(date = Date.current)
+        def initialize(date = Date.current, skip_live_on_check = false)
           @date = date
           @repository = Repositories::DisbursementRepository.new
           @eligible_merchants_query = Queries::DisbursableMerchantsQuery.new(date)
+          @skip_live_on_check = skip_live_on_check
         end
 
         def create_disbursements
           results = { successful: [], failed: [] }
 
-          @eligible_merchants_query.call_in_batches.each do |merchant|
+          fetch_eligible_merchants_in_batches.each do |merchant|
             process_merchant_disbursement(merchant, results)
           end
 
@@ -21,15 +22,19 @@ module Domain
         private
 
         def fetch_eligible_merchants_in_batches
-          @eligible_merchants_query.call_in_batches
+          if @skip_live_on_check
+            @eligible_merchants_query.call_historical_in_batches
+          else
+            @eligible_merchants_query.call_in_batches
+          end
         rescue StandardError => e
           Rails.logger.error("Failed to fetch eligible merchants: #{e.message}")
           []
         end
 
         def process_merchant_disbursement(merchant, results)
+          sleep(0.01)
           ActiveRecord::Base.transaction do
-            sleep(0.025)
             calculator = build_frequency_based_calculator(merchant)
             disbursement = calculator.calculate_and_create
             results[:successful] << disbursement if disbursement
@@ -56,7 +61,8 @@ module Domain
             merchant.disbursement_frequency,
             merchant,
             @date,
-            @repository
+            @repository,
+            @skip_live_on_check
           )
         end
       end

@@ -13,6 +13,13 @@ module Domain
           Rails.logger.error("Failed to fetch eligible merchants: #{e.message}")
           [].to_enum # Return empty enumerable
         end
+
+        def call_historical_in_batches
+          @repository.find_historical_disbursable_merchants_in_batches(@date)
+        rescue StandardError => e
+          Rails.logger.error("Failed to fetch eligible merchants: #{e.message}")
+          [].to_enum # Return empty enumerable
+        end
       end
     end
   end
