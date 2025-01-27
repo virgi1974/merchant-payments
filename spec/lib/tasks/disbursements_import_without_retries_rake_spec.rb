@@ -16,7 +16,7 @@ RSpec.describe "disbursements:import_without_retries" do
     allow(Domain::Disbursements::Repositories::DisbursementRepository).to receive(:new).and_return(repository)
     allow(repository).to receive(:date_range).and_return(date_range)
     allow(Domain::Disbursements::Services::DisbursementCalculator).to receive(:new).and_return(calculator)
-    allow(calculator).to receive(:create_disbursements).and_return({ successful: [1], failed: [] })
+    allow(calculator).to receive(:create_disbursements).and_return({ successful: [ 1 ], failed: [] })
   end
 
   it "processes disbursements for each day in the range" do
@@ -32,7 +32,7 @@ RSpec.describe "disbursements:import_without_retries" do
     times = []
     allow(calculator).to receive(:create_disbursements) do
       times << Time.current.dup
-      { successful: [1], failed: [] }
+      { successful: [ 1 ], failed: [] }
     end
 
     expect {
@@ -56,11 +56,11 @@ RSpec.describe "disbursements:import_without_retries" do
 
   it "accumulates successful and failed counts correctly" do
     allow(calculator).to receive(:create_disbursements).and_return(
-      { successful: [1, 2], failed: [3] },
-      { successful: [4], failed: [5, 6] },
-      { successful: [], failed: [7] },
-      { successful: [8], failed: [] },
-      { successful: [9, 10], failed: [11] }
+      { successful: [ 1, 2 ], failed: [ 3 ] },
+      { successful: [ 4 ], failed: [ 5, 6 ] },
+      { successful: [], failed: [ 7 ] },
+      { successful: [ 8 ], failed: [] },
+      { successful: [ 9, 10 ], failed: [ 11 ] }
     )
 
     expect {
@@ -88,7 +88,7 @@ RSpec.describe "disbursements:import_without_retries" do
       processed_times = []
       allow(calculator).to receive(:create_disbursements) do
         processed_times << Time.current
-        { successful: [1], failed: [] }
+        { successful: [ 1 ], failed: [] }
       end
 
       Rake::Task["disbursements:import_without_retries"].invoke
@@ -107,7 +107,7 @@ RSpec.describe "disbursements:import_without_retries" do
       allow(calculator).to receive(:create_disbursements) do
         call_count += 1
         raise "Error" if call_count == 2
-        { successful: [1], failed: [] }
+        { successful: [ 1 ], failed: [] }
       end
 
       expect {

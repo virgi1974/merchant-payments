@@ -10,10 +10,13 @@ module Domain
           start_date = Date.new(year, month, 1)
           end_date = start_date.end_of_month
 
-          DISBURSEMENT_MODEL
+          disbursements = DISBURSEMENT_MODEL
             .where(merchant: merchant)
             .where(created_at: start_date..end_date)
-            .sum(:fees_amount_cents)
+
+          return nil unless disbursements.exists?
+
+          disbursements.sum(:fees_amount_cents)
         end
 
         def create_monthly_adjustment(merchant:, amount:, month:, year:)

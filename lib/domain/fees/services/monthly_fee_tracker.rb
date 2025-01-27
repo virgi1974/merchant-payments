@@ -10,6 +10,8 @@ module Domain
           return if @repository.adjustment_exists?(merchant, month, year)
 
           total_fees = calculate_monthly_fees(merchant, month, year)
+          return nil if total_fees.nil? # Skip if merchant wasn't active
+
           minimum_fee = merchant.minimum_monthly_fee_cents
           fee_difference = minimum_fee - total_fees
 

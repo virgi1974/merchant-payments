@@ -56,7 +56,7 @@ RSpec.describe Domain::Fees::Repositories::MonthlyFeeRepository do
     context "when no disbursements exist" do
       it "returns zero" do
         total = repository.total_fees_for_month(merchant, month, year)
-        expect(total).to eq(0)
+        expect(total).to be_nil
       end
     end
   end
