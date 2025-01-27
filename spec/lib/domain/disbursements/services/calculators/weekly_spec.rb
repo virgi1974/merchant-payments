@@ -27,7 +27,8 @@ RSpec.describe Domain::Disbursements::Services::Calculators::Weekly do
       created_at: reference_date)
   end
 
-  subject(:calculator) { described_class.new(merchant, reference_date, repository) }
+  let(:skip_live_on_check) { false }
+  subject(:calculator) { described_class.new(merchant, reference_date, repository, skip_live_on_check) }
 
   before do
     allow(Domain::Disbursements::Queries::PendingOrdersQuery).to receive(:new)
@@ -140,50 +141,88 @@ RSpec.describe Domain::Disbursements::Services::Calculators::Weekly do
   end
 
   describe "#fetch_orders" do
-    context "when processing on merchant's live day (Wednesday)" do
-      let(:merchant) do
-        instance_double(Domain::Merchants::Entities::DisbursableMerchant,
-          id: 1,
-          reference: "weekly_merchant",
-          disbursement_frequency: "weekly",
-          live_on: Date.new(2024, 1, 17), # Wednesday
-          minimum_monthly_fee_cents: 2900)
-      end
+    context "when skip_live_on_check is true" do
+      let(:skip_live_on_check) { true }
+      let(:reference_date) { Date.new(2024, 1, 16) } # Tuesday
 
-      let(:reference_date) { Date.new(2024, 1, 24) } # Next Wednesday
-
-      it "calls the orders query" do
+      it "fetches orders regardless of merchant's live_on day" do
         expect(orders_query).to receive(:call).with(merchant)
         calculator.send(:fetch_orders)
       end
     end
 
-    context "when processing on different days" do
-      let(:merchant) do
-        instance_double(Domain::Merchants::Entities::DisbursableMerchant,
-          id: 1,
-          reference: "weekly_merchant",
-          disbursement_frequency: "weekly",
-          live_on: Date.new(2024, 1, 17), # Wednesday
-          minimum_monthly_fee_cents: 2900)
+    context "when skip_live_on_check is false" do
+      let(:skip_live_on_check) { false }
+
+      context "when processing on merchant's live day (Wednesday)" do
+        let(:merchant) do
+          instance_double(Domain::Merchants::Entities::DisbursableMerchant,
+            id: 1,
+            reference: "weekly_merchant",
+            disbursement_frequency: "weekly",
+            live_on: Date.new(2024, 1, 17), # Wednesday
+            minimum_monthly_fee_cents: 2900)
+        end
+
+        let(:reference_date) { Date.new(2024, 1, 24) } # Next Wednesday
+
+        it "calls the orders query" do
+          expect(orders_query).to receive(:call).with(merchant)
+          calculator.send(:fetch_orders)
+        end
       end
 
-      [
-        Date.new(2024, 1, 15), # Monday
-        Date.new(2024, 1, 16), # Tuesday
-        Date.new(2024, 1, 18), # Thursday
-        Date.new(2024, 1, 19), # Friday
-        Date.new(2024, 1, 20), # Saturday
-        Date.new(2024, 1, 21)  # Sunday
-      ].each do |test_date|
-        context "when processing on #{test_date.strftime("%A")}" do
-          let(:reference_date) { test_date }
+      context "when processing on different days" do
+        let(:merchant) do
+          instance_double(Domain::Merchants::Entities::DisbursableMerchant,
+            id: 1,
+            reference: "weekly_merchant",
+            disbursement_frequency: "weekly",
+            live_on: Date.new(2024, 1, 17), # Wednesday
+            minimum_monthly_fee_cents: 2900)
+        end
 
-          it "returns empty array without calling query" do
-            expect(orders_query).not_to receive(:call)
-            expect(calculator.send(:fetch_orders)).to eq([])
+        [
+          Date.new(2024, 1, 15), # Monday
+          Date.new(2024, 1, 16), # Tuesday
+          Date.new(2024, 1, 18), # Thursday
+          Date.new(2024, 1, 19), # Friday
+          Date.new(2024, 1, 20), # Saturday
+          Date.new(2024, 1, 21)  # Sunday
+        ].each do |test_date|
+          context "when processing on #{test_date.strftime("%A")}" do
+            let(:reference_date) { test_date }
+
+            it "returns empty array without calling query" do
+              expect(orders_query).not_to receive(:call)
+              expect(calculator.send(:fetch_orders)).to eq([])
+            end
           end
         end
+      end
+    end
+  end
+
+  describe "#process_today?" do
+    context "when skip_live_on_check is true" do
+      let(:skip_live_on_check) { true }
+
+      it "returns true regardless of the day" do
+        expect(calculator.send(:process_today?)).to be true
+      end
+    end
+
+    context "when skip_live_on_check is false" do
+      let(:skip_live_on_check) { false }
+
+      it "returns true on merchant's live day" do
+        allow(merchant).to receive(:live_on).and_return(reference_date)
+        expect(calculator.send(:process_today?)).to be true
+      end
+
+      it "returns false on different days" do
+        allow(merchant).to receive(:live_on).and_return(reference_date + 1.day)
+        expect(calculator.send(:process_today?)).to be false
       end
     end
   end

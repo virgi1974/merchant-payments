@@ -9,11 +9,13 @@ module Domain
         let(:repository) { instance_double("OrderRepository") }
 
         describe ".create" do
+          let(:skip_live_on_check) { false }
+
           context "with daily frequency" do
             let(:frequency) { "daily" }
 
             it "returns a daily calculator instance" do
-              calculator = described_class.create(frequency, merchant, date, repository)
+              calculator = described_class.create(frequency, merchant, date, repository, skip_live_on_check)
               expect(calculator).to be_a(Domain::Disbursements::Services::Calculators::Daily)
             end
           end
@@ -22,7 +24,7 @@ module Domain
             let(:frequency) { "weekly" }
 
             it "returns a weekly calculator instance" do
-              calculator = described_class.create(frequency, merchant, date, repository)
+              calculator = described_class.create(frequency, merchant, date, repository, skip_live_on_check)
               expect(calculator).to be_a(Domain::Disbursements::Services::Calculators::Weekly)
             end
           end
@@ -32,7 +34,7 @@ module Domain
 
             it "raises an error" do
               expect {
-                described_class.create(frequency, merchant, date, repository)
+                described_class.create(frequency, merchant, date, repository, skip_live_on_check)
               }.to raise_error(
                 Domain::Disbursements::Errors::InvalidFrequencyError,
                 "Unknown frequency: monthly"
@@ -45,10 +47,10 @@ module Domain
             calculator_class = Domain::Disbursements::Services::Calculators::Daily
 
             expect(calculator_class).to receive(:new)
-              .with(merchant, date, repository)
+              .with(merchant, date, repository, skip_live_on_check)
               .and_call_original
 
-            described_class.create(frequency, merchant, date, repository)
+            described_class.create(frequency, merchant, date, repository, skip_live_on_check)
           end
         end
       end
