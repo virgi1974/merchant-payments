@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Disbursement do
+  include ActiveSupport::Testing::TimeHelpers
+
   describe "validations" do
     let(:merchant) do
       Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
@@ -86,5 +88,83 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Disbursement d
       expect(disbursement).to respond_to(:orders)
       expect(disbursement.orders).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
+  end
+
+  let(:merchant) do
+    Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
+      reference: "merchant_1",
+      email: "merchant@test.com",
+      live_on: "2024-01-01",
+      disbursement_frequency: "daily",
+      minimum_monthly_fee_cents: 0
+    )
+  end
+
+  describe "scopes" do
+    let(:year) { 2024 }
+
+    describe ".for_year" do
+      before do
+        travel_to Time.zone.local(year, 1, 15, 10, 0, 0) do  # First creation at 10:00
+          create_disbursement(1000, 10)
+        end
+
+        travel_to Time.zone.local(year + 1, 1, 15, 11, 0, 0) do  # Second creation at 11:00
+          create_disbursement(3000, 30)
+        end
+      end
+
+      it "returns disbursements for the specified year" do
+        expect(described_class.for_year(2024).count).to eq(1)
+        expect(described_class.for_year(2024).pluck(:created_at).map(&:year)).to eq([ 2024 ])
+        expect(described_class.for_year(2025).count).to eq(1)
+        expect(described_class.for_year(2025).pluck(:created_at).map(&:year)).to eq([ 2025 ])
+      end
+    end
+
+    describe ".sum_amount_for_year" do
+      before do
+        travel_to Time.zone.local(year, 1, 15, 10, 0, 0) do  # First creation at 10:00
+          create_disbursement(1000, 10)
+        end
+
+        travel_to Time.zone.local(year, 1, 15, 11, 0, 0) do  # Second creation at 11:00
+          create_disbursement(2000, 20)
+        end
+      end
+
+      it "returns the sum of amounts for the specified year" do
+        expect(described_class.sum_amount_for_year(2024)).to eq(3000)
+      end
+    end
+
+    describe ".sum_fees_for_year" do
+      before do
+        travel_to Time.zone.local(year, 1, 15, 10, 0, 0) do  # First creation at 10:00
+          create_disbursement(1000, 10)
+        end
+
+        travel_to Time.zone.local(year, 1, 15, 11, 0, 0) do  # Second creation at 11:00
+          create_disbursement(2000, 20)
+        end
+      end
+
+      it "returns the sum of fees for the specified year" do
+        expect(described_class.sum_fees_for_year(2024)).to eq(30)
+      end
+    end
+  end
+
+  private
+
+  def create_disbursement(amount, fees)
+    sleep 1
+    described_class.create!(
+      id: "DISB-#{merchant.id}-#{Time.current.to_i}-#{SecureRandom.hex(4)}",
+      merchant: merchant,
+      amount_cents: amount,
+      fees_amount_cents: fees,
+      disbursed_at: Time.current
+    )
   end
 end

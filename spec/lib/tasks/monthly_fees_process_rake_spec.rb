@@ -1,7 +1,7 @@
 require "rails_helper"
+require "rake"
 
-RSpec.describe "monthly_fees:process" do
-  include_context "rake"
+RSpec.describe "monthly_fees:process rake task" do
   include ActiveSupport::Testing::TimeHelpers
 
   let(:merchant_repository) { instance_double(Domain::Fees::Repositories::MerchantRepository) }
@@ -16,31 +16,27 @@ RSpec.describe "monthly_fees:process" do
   end
 
   before do
-    Rake.application.rake_require("monthly_fees", [Rails.root.join("lib/tasks").to_s])
-    Rake::Task["monthly_fees:process"].reenable
-
+    Rails.application.load_tasks
+    Rake::Task.define_task(:environment)
     allow(Domain::Fees::Repositories::MerchantRepository).to receive(:new).and_return(merchant_repository)
     allow(Domain::Fees::Services::MonthlyFeeTracker).to receive(:new).and_return(monthly_fee_tracker)
-    allow(Rails).to receive(:logger).and_return(Logger.new(nil))
-  end
-
-  after(:each) do
-    Rake::Task["monthly_fees:process"].reenable
-    travel_back
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
   end
 
   context "when running on first day of month" do
     before do
       travel_to Time.zone.local(2024, 1, 1, 4, 0, 0)
-      allow(merchant_repository).to receive(:find_all_merchants_in_batches).and_return([merchant])
-      allow(monthly_fee_tracker).to receive(:process_merchant).and_return(true)
     end
 
     after { travel_back }
 
     it "processes monthly fees for all merchants" do
+      allow(merchant_repository).to receive(:find_all_merchants_in_batches).and_return([ merchant ])
+      allow(monthly_fee_tracker).to receive(:process_merchant).and_return(true)
+
       expect(monthly_fee_tracker).to receive(:process_merchant).with(merchant, 12, 2023)
-      Rake::Task["monthly_fees:process"].invoke
+      expect { Rake::Task["monthly_fees:process"].execute }.not_to raise_error
     end
   end
 
@@ -54,7 +50,7 @@ RSpec.describe "monthly_fees:process" do
     it "skips processing" do
       expect(merchant_repository).not_to receive(:find_all_merchants_in_batches)
       expect(monthly_fee_tracker).not_to receive(:process_merchant)
-      Rake::Task["monthly_fees:process"].invoke
+      expect { Rake::Task["monthly_fees:process"].execute }.not_to raise_error
     end
   end
 end

@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Domain::Disbursements::Repositories::DisbursementRepository do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:repository) { described_class.new }
 
   let(:merchant) do
@@ -132,5 +134,46 @@ RSpec.describe Domain::Disbursements::Repositories::DisbursementRepository do
         }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
+  end
+
+  describe "#for_year" do
+    let(:year) { 2024 }
+
+    before do
+      travel_to Time.zone.local(year, 1, 15) do
+        create_disbursement(1000, 10)
+      end
+
+      travel_to Time.zone.local(year + 1, 1, 15) do
+        create_disbursement(3000, 30)
+      end
+    end
+
+    it "returns stats for the specified year" do
+      result = repository.for_year(year)
+      expect(result[:size]).to eq(1)
+      expect(result[:sum_amount]).to eq(1000)
+      expect(result[:sum_fees]).to eq(10)
+    end
+
+    it "returns zero values for year with no disbursements" do
+      result = repository.for_year(2020)
+
+      expect(result[:size]).to eq(0)
+      expect(result[:sum_amount]).to eq(0)
+      expect(result[:sum_fees]).to eq(0)
+    end
+  end
+
+  private
+
+  def create_disbursement(amount, fees)
+    Infrastructure::Persistence::ActiveRecord::Models::Disbursement.create!(
+      id: "DISB-#{SecureRandom.uuid}",
+      merchant: merchant,
+      amount_cents: amount,
+      fees_amount_cents: fees,
+      disbursed_at: Time.current
+    )
   end
 end

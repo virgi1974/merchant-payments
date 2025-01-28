@@ -13,10 +13,10 @@ RSpec.describe "Merchants API", type: :request do
           reference: { type: :string, example: "MERCH123" },
           email: { type: :string, example: "merchant@example.com" },
           live_on: { type: :string, format: "date", example: "2024-03-20" },
-          disbursement_frequency: { type: :string, enum: ["daily", "weekly"], example: "daily" },
+          disbursement_frequency: { type: :string, enum: [ "DAILY", "WEEKLY" ], example: "WEEKLY" },
           minimum_monthly_fee: { type: :number, format: :float, example: 29.99 }
         },
-        required: [:reference, :email, :live_on, :disbursement_frequency]
+        required: [ :reference, :email, :live_on, :disbursement_frequency ]
       }
 
       response(201, "merchant created") do
@@ -25,7 +25,7 @@ RSpec.describe "Merchants API", type: :request do
             reference: "MERCH123",
             email: "merchant@example.com",
             live_on: "2024-03-20",
-            disbursement_frequency: "daily",
+            disbursement_frequency: "DAILY",
             minimum_monthly_fee: 29.99
           }
         end

@@ -5,7 +5,7 @@ RSpec.describe "monthly_fees:process_historical" do
   include ActiveSupport::Testing::TimeHelpers
 
   before do
-    Rake.application.rake_require("tasks/monthy_fees")
+    Rake.application.rake_require("tasks/monthly_fees")
     Rake::Task.define_task(:environment)
   end
 
