@@ -24,6 +24,7 @@ gem "solid_queue"
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
+gem "rswag"
 gem "rufus-scheduler"
 
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
@@ -40,6 +41,7 @@ group :development, :test do
   gem "rspec"
   gem "rspec-rails"
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  gem "rswag-specs"
   gem "rubocop-rails-omakase", require: false
 end
 
