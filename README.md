@@ -257,6 +257,30 @@ POST /api/v1/orders # Create new order
 POST /api/v1/merchants # Create new merchant
 ```
 
+e.g. Curl can be used to create merchants or orders
+
+```bash
+# Merchant creation
+curl -X POST http://localhost:3000/api/v1/merchants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reference": "merchant_X",
+    "email": "merchant@example.com",
+    "live_on": "2024-03-20",
+    "disbursement_frequency": "DAILY",
+    "minimum_monthly_fee": "29.99"
+  }'
+{"id":"3dff6af3-c148-402e-85b7-1aeafbd5a9ab"}%
+# Order creation
+curl -X POST http://localhost:3000/api/v1/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "merchant_reference": "bins_inc",
+    "amount": "61.74",
+    "created_at": "2023-01-01T00:00:00Z"
+  }'
+```
+
 ## Statistics
 
 | Year | Disbursements | Amount to Merchants | Order Fees    | Monthly Fees Count | Monthly Fees Amount |
