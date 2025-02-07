@@ -5,6 +5,7 @@
 [![Test Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](coverage/index.html)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Style](https://img.shields.io/badge/code%20style-rubocop-blue.svg)](https://github.com/rubocop/rubocop)
+![Coverage](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/virgi1974/merchant-payments/main/coverage/.last_run.json&query=$.result.line&suffix=%25&label=coverage)
 
 A Ruby on Rails application that handles merchant disbursements and fee calculations for an e-commerce payment system.
 

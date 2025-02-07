@@ -46,6 +46,7 @@ group :development, :test do
 end
 
 group :test do
+  gem "codecov"
   gem "simplecov", require: false
   gem "timecop", "~> 0.9.10"
 end
