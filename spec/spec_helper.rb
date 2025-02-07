@@ -94,6 +94,8 @@ RSpec.configure do |config|
 end
 
 require "simplecov"
+require "codecov"
+
 SimpleCov.start "rails" do
   # Explicitly set coverage directory
   coverage_dir File.join(File.dirname(__FILE__), "..", "coverage")
@@ -104,4 +106,9 @@ SimpleCov.start "rails" do
 
   enable_coverage :branch
   minimum_coverage line: 80
+
+  formatter SimpleCov::Formatter::MultiFormatter.new([
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::Codecov
+  ])
 end

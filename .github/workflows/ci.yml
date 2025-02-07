@@ -56,3 +56,17 @@ jobs:
         run: |
           bundle exec rails db:create db:schema:load
           bundle exec rspec --format progress
+
+      - name: Generate coverage badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          COVERAGE=$(cat coverage/.last_run.json | jq -r '.result.line')
+          echo "COVERAGE=${COVERAGE}" >> $GITHUB_ENV
+          echo "![Coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COVERAGE%.*} >= 80 && echo 'brightgreen' || echo 'red'}.svg)" > .github/coverage_badge.md
+
+      - name: Update coverage badge
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Update coverage badge [skip ci]"
+          file_pattern: .github/coverage_badge.md
