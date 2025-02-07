@@ -165,8 +165,20 @@ RSpec.describe Infrastructure::Persistence::ActiveRecord::Models::Order do
         expect(described_class.by_creation).to eq([ older_order, newer_order ])
       end
     end
+  end
 
-    describe ".mark_as_disbursed" do
+  describe "class methods" do
+    describe "#mark_as_disbursed" do
+      let(:merchant) do
+        Infrastructure::Persistence::ActiveRecord::Models::Merchant.create!(
+          reference: "MERCH123",
+          email: "merchant@example.com",
+          live_on: Date.current,
+          disbursement_frequency: "daily",
+          minimum_monthly_fee_cents: 1000
+        )
+      end
+
       let!(:orders) do
         3.times.map do
           described_class.create!(

@@ -38,13 +38,13 @@ module Infrastructure
                date(MAX(created_at)) as max_date"
             ).first
           }
-          scope :mark_as_disbursed, ->(order_ids) {
-            where(id: order_ids)
-              .in_batches(of: 1000)
-              .update_all(pending_disbursement: false)
-          }
 
           # 8. Class methods
+          def self.mark_as_disbursed(order_ids, batch_size: 10_000)
+            order_ids.each_slice(batch_size) do |batch|
+              where(id: batch).update_all(pending_disbursement: false)
+            end
+          end
 
           # 9. Instance methods
         end
