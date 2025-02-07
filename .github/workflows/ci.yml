@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   scan_ruby:
@@ -37,3 +37,10 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          COVERAGE: true
+        run: |
+          bundle exec rails db:create db:schema:load
+          bundle exec rspec --format progress
