@@ -92,3 +92,16 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
+require "simplecov"
+SimpleCov.start "rails" do
+  # Explicitly set coverage directory
+  coverage_dir File.join(File.dirname(__FILE__), "..", "coverage")
+
+  # Force creation of result files
+  SimpleCov.use_merging true
+  SimpleCov.merge_timeout 3600
+
+  enable_coverage :branch
+  minimum_coverage line: 80
+end
