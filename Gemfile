@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gem "csv"
 # Data structures and type system
-gem "dry-struct", "~> 1.7.0"
+gem "dry-struct", "~> 1.7.1"
 gem "money-rails", "~> 1.15"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.1"
